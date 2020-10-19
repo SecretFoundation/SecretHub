@@ -1,3 +1,9 @@
+# Secret Hub
+
+connecting with Ethereum and other blockchains to generate privacy network effects
+
+--------
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
