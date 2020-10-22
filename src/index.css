@@ -1,13 +1,85 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  height: 480px;
+  min-height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--color-main-dark);
+  background-image: linear-gradient(rgba(169,224,252,0) 20.96%,#a9e0fc 99.81%);
+  --color-main-accent: #20b1f9;
+  --color-summer-sky: #39b9f9;
+  --color-deep-sky-blue: #07a9f9;
+  --color-main-dark: #095198;
+  --color-sec-dark: #3a74ad;
+  --color-sec-accent: #e72e9d;
+  --color-main-light: #fff;
+  --color-sec-light: #d2effd;
+  --color-alice-blue: #ebf7fd;
+  --color-main-dark-opacity80: rgba(9,81,152,0.8);
+  --color-sec-accent-opacity80: rgba(231,46,157,0.8);
+  --color-sec-accent-opacity50: rgba(231,46,157,0.5);
+  --color-sec-dark-opacity50: rgba(58,116,173,0.5);
+  --color-main-dark-opacity50: rgba(9,81,152,0.5);
+  --color-main-accent-opacity50: rgba(32,177,249,0.5);
+  --color-main-light-opacity50: hsla(0,0%,100%,0.5);
+  --color-main-accent-opacity20: rgba(32,177,249,0.2);
+  --color-deep-sky-blue-opacity20: rgba(7,169,249,0.2);
+  --color-main-dark-opacity20: rgba(9,81,152,0.2);
+  --color-main-light-opacity20: hsla(0,0%,100%,0.2);
+  --color-main-accent-opacity10: rgba(32,177,249,0.1);
+  --color-summer-sky-opacity10: rgba(57,185,249,0.1);
+  --color-main-light-opacity10: hsla(0,0%,100%,0.1);
+  --color-main-accent-opacity5: rgba(32,177,249,0.05);
+  --main-background: linear-gradient(89.9deg,rgba(169,224,252,0) 20.96%,#a9e0fc 99.81%);
+  --main-background-opacity0: linear-gradient(89.9deg,#fff 20.96%,#a9e0fc 99.81%);
+  --container-width: 12.6rem;
+ 
+  --main-font: "made_evolve_sans_regular",sans-serif;
+  --sub-font: "athelas",serif;
+  --font-size-h1: 0.42rem;
+  --font-size-h2: 0.3rem;
+  --font-size-h3: 0.24rem;
+  --font-size-h4: 0.18rem;
+  --font-size-desc1: 0.16rem;
+  --font-size-button-video: 0.14rem;
+  --font-size-input-label: 0.16rem;
+  --font-size-burger-label: 0.12rem;
+  --font-weight-1: 100;
+  --font-weight-2: 200;
+  --font-weight-3: 300;
+  --font-weight-4: 400;
+  --font-weight-5: 500;
+  --font-weight-6: 600;
+  --font-weight-7: 700;
+  --line-height-0: 0;
+  --line-height-initial: initial;
+  --line-height-h1: 0.56rem;
+  --line-height-h2: 0.35rem;
+  --line-height-h3: 0.28rem;
+  --line-height-h4: 0.24rem;
+  --line-height-desc1: 0.24rem;
+  --line-height-link: 0.18rem;
+  --line-height-button-video: 0.16rem;
+  --line-height-input-label: 0.18rem;
+  --line-height-burger-label: 0.14rem;
+  --letter-spacing: normal;
+  --letter-spacing-0: 0;
+  --letter-spacing-1: 0.01rem; 
+}
+
+h1 {
+  color: var(--color-main-dark);
+  font-family: var(--main-font);
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-4);
+  letter-spacing: var(--letter-spacing);
+  line-height: var(--line-height-h1);
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }

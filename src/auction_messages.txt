@@ -1,0 +1,92 @@
+auction messages
+ 
+{
+  "retract_bid": {
+    "message": "ABCDEFGHIJKLMNOP",
+    "status": "failure",
+    "amount_returned": null
+  }
+}
+
+{
+  "close_auction": {
+    "message": "ABCDEFGHIJKLMNOP",
+    "status": "failure",
+    "amount_returned": null,
+    "winning_bid": null
+  }
+}
+
+{
+  "status": {
+    "message": "ABCDEFGHIJKLMNOP",
+    "status": "failure"
+  }
+}
+
+{
+  "bid": {
+    "message": "ABCDEFGHIJKLMNOP",
+    "status": "failure",
+    "amount_bid": null,
+    "amount_returned": null,
+    "previous_bid": false
+  }
+}
+
+{
+  "consign": {
+    "message": "ABCDEFGHIJKLMNOP",
+    "status": "failure",
+    "amount_consigned": null,
+    "amount_needed": null,
+    "amount_returned": false
+  }
+}
+
+init:
+{
+  "create_auction": {
+    "bid_contract": {
+      "address": "ABCDEF",
+      "code_hash": "ABCDEFGHIJKLMNOPQRS"
+    },
+    "minimum_bid": "ABCDEFGHIJK",
+    "sell_amount": "ABCDEFGHIJKLMNOPQ",
+    "sell_contract": {
+      "address": "ABCDEFGHIJKLMNOPQR",
+      "code_hash": "ABCDEFGHIJKLMNOPQRSTUVW"
+    },
+    "description": null
+  }
+}
+
+
+query
+{
+  "auction_info": {
+    "auction_address": "ABCDEFGHIJKLMNOP",
+    "bid_token": {
+      "contract_address": "ABCDEFGHIJKLMNOPQRS",
+      "token_info": {
+        "decimals": 576,
+        "name": "ABCDEFGHIJKLMNOPQ",
+        "symbol": "ABCDEFGHIJKLMNOPQR",
+        "total_supply": 732
+      }
+    },
+    "minimum_bid": "ABCDEFGHIJKLMNOP",
+    "sell_amount": "ABCDEFGHI",
+    "sell_token": {
+      "contract_address": "ABCDEFGHIJKLMNOPQRST",
+      "token_info": {
+        "decimals": 920,
+        "name": "ABCDEFGHIJKLMNOPQRSTUVW",
+        "symbol": "ABCDEFGHIJKLMNOPQRSTU",
+        "total_supply": {}
+      }
+    },
+    "status": "ABCD",
+    "description": null
+  }
+}
