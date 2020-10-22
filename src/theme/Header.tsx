@@ -34,7 +34,7 @@ export interface HeaderProps {
   readonly account?: Account;
   readonly address?: String;
   children?: React.ReactElement;
-  balance?: any;
+  balance?: string;
 }
 
 function Web3Account() {
@@ -57,44 +57,44 @@ function Web3Account() {
   )
 }
 
-function Balance() {
-  const { account, library, chainId } = useWeb3React()
+// function Balance() {
+//   const { account, library, chainId } = useWeb3React()
 
-  const [balance, setBalance] = React.useState()
-  React.useEffect((): any => {
-    if (!!account && !!library) {
-      let stale = false
+//   const [balance, setBalance] = React.useState()
+//   React.useEffect((): any => {
+//     if (!!account && !!library) {
+//       let stale = false
 
-      library
-        .getBalance(account)
-        .then((balance: any) => {
-          if (!stale) {
-            setBalance(balance)
-          }
-        })
-        .catch(() => {
-          if (!stale) {
-            setBalance(null)
-          }
-        })
+//       library
+//         .getBalance(account)
+//         .then((balance: any) => {
+//           if (!stale) {
+//             setBalance(balance)
+//           }
+//         })
+//         .catch(() => {
+//           if (!stale) {
+//             setBalance(null)
+//           }
+//         })
 
-      return () => {
-        stale = true
-        setBalance(undefined)
-      }
-    }
-  }, [account, library, chainId]) // ensures refresh if referential identity of library doesn't change across chainIds
+//       return () => {
+//         stale = true
+//         setBalance(null)
+//       }
+//     }
+//   }, [account, library, chainId]) // ensures refresh if referential identity of library doesn't change across chainIds
 
-  return (
-    <>
-      <span>Balance</span>
-      <span role="img" aria-label="gold">
-        💰
-      </span>
-      <span>{balance === null ? 'Error' : balance ? `Ξ${formatEther(balance)}` : ''}</span>
-    </>
-  )
-}
+//   return (
+//     <>
+//       <span>Balance</span>
+//       <span role="img" aria-label="gold">
+//         💰
+//       </span>
+//       <span>{balance === null ? 'Error' : balance ? `Ξ${formatEther(balance)}` : ''}</span>
+//     </>
+//   )
+// }
 
 // Show the current account or any error message in the header
 export function Header({ account, address, children }: HeaderProps, props: any): JSX.Element {
@@ -124,7 +124,7 @@ export function Header({ account, address, children }: HeaderProps, props: any):
             <MuiTypography variant="h6">
               {address} - {balance}
             </MuiTypography>
-            <BlockHeight/>
+            {/* <BlockHeight/> */}
           </Toolbar>
         </AppBar>
       </ElevationScroll>

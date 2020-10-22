@@ -35,18 +35,20 @@ import { ConsignForm, CONSIGN_AMOUNT_FIELD } from "./ConsignForm";
 import { BidForm, BID_AMOUNT_FIELD } from "./BidForm";
 import { WithdrawForm, WITHDRAW_AMOUNT_FIELD } from "./WithdrawForm";
 import { useBaseStyles } from "../../theme";
+const { Encoding } = require("@iov/encoding");
+const { fromHex, fromUtf8, toAscii, toBase64 } = Encoding;
 
 // todo config
 const secret20MultisigAddress = 'secret1hx84ff3h4m8yuvey36g9590pw9mm2p55cwqnm6';
 const secret20TokenAddress = 'secret1ljptw8mf5wk9n69j2v5vl4w2laqlrgspxykanp';
 
 export interface ContractDetailsProps {
-  readonly address: string;
+  readonly contractAddress: string;
   readonly name?: string;
 }
 
 const emptyInfo: State = {
-  address: "",
+  contractAddress: "",
   bidTokenAddress: "",
   bidTokenDecimals: "",
   bidTokenName: "",
@@ -57,6 +59,8 @@ const emptyInfo: State = {
   sellTokenSymbol: "",
   minimumBid: "",
   sellAmount: "",
+  sellTokenBalance: "",
+  bidTokenBalance: "",
   status: "",
   description: "",
   bidTokenTotalSupply: "",
@@ -65,7 +69,7 @@ const emptyInfo: State = {
 };
 
 type State = { 
-  readonly address: string,
+  readonly contractAddress: string,
   readonly bidTokenAddress: string,
   readonly bidTokenDecimals?: string,
   readonly bidTokenName?: string,
@@ -80,11 +84,13 @@ type State = {
   readonly description?: string,
   readonly bidTokenTotalSupply: string,
   readonly sellTokenTotalSupply: string,
-  readonly loading: boolean
+  readonly loading: boolean,
+  readonly sellTokenBalance: string,
+  readonly bidTokenBalance: string,
 };
 
-function ContractLogic({ address }: ContractDetailsProps): JSX.Element {
-  const { getClient } = useSdk();
+function ContractLogic({ contractAddress }: ContractDetailsProps): JSX.Element {
+  const { getClient, address, idw } = useSdk();
   const { setError } = useError();
   const { refreshAccount } = useAccount();
   const { enqueueSnackbar } = useSnackbar();
@@ -95,17 +101,17 @@ function ContractLogic({ address }: ContractDetailsProps): JSX.Element {
   // get the contracts
   React.useEffect(() => {
     getClient()
-      .getContract(address)
+      .getContract(contractAddress)
       .then((info: any) => {
-          setValue({ ...info, address})
+          setValue({ ...info, contractAddress})
           getClient()
           /* eslint-disable-next-line @typescript-eslint/camelcase */
-          .queryContractSmart(address, { auction_info: { } })
+          .queryContractSmart(contractAddress, { auction_info: { } })
           .then((res: any) => {
             const auction = res.auction_info;
-            debugger
+            // todo load idw stuff
             setState({ ...state,
-              address: address,
+              contractAddress: contractAddress,
               bidTokenAddress: auction.bid_token.contract_address,
               sellTokenAddress: auction.sell_token.contract_address,
               sellTokenDecimals: auction.sell_token.token_info.decimals,
@@ -126,11 +132,35 @@ function ContractLogic({ address }: ContractDetailsProps): JSX.Element {
         }
       )
       .catch(setError);
-  }, [setError, address, getClient]);
+  }, [setError, contractAddress, getClient]);
 
-  const refreshSecretBalances = async () => {
+  const refreshSecretBalances =   async () => {
     setState({ ...state, loading: true });
+    console.log('refreshing account balances')
+    
+    try {
+      let sellBalanceResult = await getClient().execute(state.sellTokenAddress, { 
+        balance: {}
+      });
+      
+      const sellBalance = JSON.parse(fromUtf8(sellBalanceResult.data)).balance.amount;
 
+      let bidBalanceResult = await getClient().execute(state.bidTokenAddress, { 
+        balance: {}
+      });
+
+      const bidBalance = JSON.parse(fromUtf8(bidBalanceResult.data)).balance.amount;
+
+      setState({...state, sellTokenBalance: sellBalance, bidTokenBalance: bidBalance})
+
+      // const myBid = await getClient().execute(state.contractAddress, { view_bid: { } })
+      // console.log(`my bid=${JSON.parse(fromUtf8(myBid.data))}`)
+      
+      
+    } catch (err) {
+      setError(err);
+      setState({ ...state, loading: false });
+    }
   }
 
   function enqueueMessage(message: string, variant?: VariantType): void {
@@ -144,18 +174,31 @@ function ContractLogic({ address }: ContractDetailsProps): JSX.Element {
     const amount = values[CONSIGN_AMOUNT_FIELD];
 
     try {
+
+      let buff = new Buffer(address);
+      let base64Address = buff.toString('base64');
+
       const consignPayment = {
-        recipient: state.address,
-        amount: amount
+        recipient: contractAddress,
+        amount: amount,
+        msg: base64Address
       }
 
       let result = await getClient().execute(state.sellTokenAddress, { 
         send: consignPayment
       });
-      console.info(`consign result: ${JSON.stringify(result)}`)
+      let response = JSON.parse(result.logs[0].events[1].attributes[1].value.trim().replaceAll("\\", ""))
+      let statusAttr = response.consign.status;
+      let messageAttr = response.consign.message;
       
-      enqueueMessage('consign successful');
+      if (statusAttr === 'failure') {
+        setError(messageAttr)
+      } else {
+        enqueueMessage(messageAttr);
+      }
+      
       refreshAccount();
+      refreshSecretBalances();
       
     } catch (err) {
       setError(err);
@@ -170,16 +213,31 @@ function ContractLogic({ address }: ContractDetailsProps): JSX.Element {
     const amount = values[BID_AMOUNT_FIELD];
 
     try {
+      let buff = new Buffer(address);
+      let base64Address = buff.toString('base64');
+
       const bidPayment = {
-        recipient: state.address,
-        amount: amount
+        recipient: contractAddress,
+        amount: amount,
+        msg: base64Address
       }
+
       let result = await getClient().execute(state.bidTokenAddress, { 
         send: bidPayment
       });
-      console.info(`bid result: ${JSON.stringify(result)}`)
-      enqueueMessage('bid successful');
+      
+      let response = JSON.parse(result.logs[0].events[1].attributes[1].value.trim().replaceAll("\\", ""))
+      let statusAttr = response.bid.status;
+      let messageAttr = response.bid.message;
+      
+      if (statusAttr === 'failure') {
+        setError(messageAttr)
+      } else {
+        enqueueMessage(messageAttr);
+      }
+
       refreshAccount();
+      refreshSecretBalances();
       
     } catch (err) {
       setError(err);
@@ -192,13 +250,22 @@ function ContractLogic({ address }: ContractDetailsProps): JSX.Element {
     setState({ ...state, loading: true });
     
     try {
-      let result = await getClient().execute(state.address, { 
+      let result = await getClient().execute(state.contractAddress, { 
         finalize: {only_if_bids: true}
       });
       
-      console.info(`finalize result: ${JSON.stringify(result)}`)
+      let response = JSON.parse(result.logs[0].events[1].attributes[1].value.trim().replaceAll("\\", ""));
+      let statusAttr = response.finalize.status;
+      let messageAttr = response.finalize.message;
+      
+      if (statusAttr === 'failure') {
+        setError(messageAttr)
+      } else {
+        enqueueMessage(messageAttr);
+      }
+
       refreshAccount();
-      enqueueMessage('finalize successful');
+      refreshSecretBalances();
       
     } catch (err) {
       setError(err);
@@ -212,21 +279,25 @@ function ContractLogic({ address }: ContractDetailsProps): JSX.Element {
     
     const amount = values[WITHDRAW_AMOUNT_FIELD];
 
-    const ethAddress = '0x6a85ABd9f2A70F21C98057629D34c345F8B5e1C7'
-    // let buff = new Buffer(ethAddress, 'base64');
-    // let message = buff.toString('ascii');
+    //todo web3
+    const ethAddress = '0x6a85ABd9f2A70F21C98057629D34c345F8B5e1C7';
+    let buff = new Buffer(ethAddress);
+    let base64Address = buff.toString('base64');
+
     try {
+
       const withdrawPayment = {
         recipient: secret20MultisigAddress,
         amount: amount,
-        msg: 'MHg2YTg1QUJkOWYyQTcwRjIxQzk4MDU3NjI5RDM0YzM0NUY4QjVlMUM3Cg=='
+        msg: base64Address
       }
       let result = await getClient().execute(secret20TokenAddress, {
         send: withdrawPayment
       });
       console.info(`withdrawal result: ${JSON.stringify(result)}`)
-      enqueueMessage('withdraw successful');
+      enqueueMessage('withdrawal successful');
       refreshAccount();
+      refreshSecretBalances();
       
     } catch (err) {
       setError(err);
@@ -237,8 +308,7 @@ function ContractLogic({ address }: ContractDetailsProps): JSX.Element {
   return (<div>
 
         {state.status && <div>
-          <CardHeader>{state.description}</CardHeader>
-            <Typography variant="h1">{state.description}</Typography>
+            <Typography variant="h3">{state.description}</Typography>
             <Typography variant="h5">Status: {state.status}</Typography>
             <Typography variant="h5">Minimum amount: {state.minimumBid}</Typography>
             <Typography variant="h5">Sell amount: {state.sellAmount}</Typography>
@@ -249,15 +319,17 @@ function ContractLogic({ address }: ContractDetailsProps): JSX.Element {
           <Grid container spacing={10} justify="space-between">
             <Grid item xs={4}>
 
-              <Typography>Sell token: {state.sellTokenName} {state.sellTokenSymbol}</Typography>
-              <Typography>Sell token supply: {state.sellTokenTotalSupply || 'Supply is private'}</Typography> 
+              <Typography variant="h5">{state.sellTokenName} {state.sellTokenSymbol}</Typography>
+              <Typography>Total supply: {state.sellTokenTotalSupply || 'Supply is private'}</Typography> 
               <ConsignForm handleConsign={doConsign} />
+              <Typography>Balance: {state.sellTokenBalance || 'Unknown'}</Typography> 
             </Grid>
             <Grid item xs={4}>
 
-              <Typography>Bid token: {state.bidTokenName} {state.bidTokenSymbol}</Typography>
-              <Typography>Bid token supply: {state.bidTokenTotalSupply || 'Supply is private'}</Typography>
+              <Typography variant="h5">{state.bidTokenName} {state.bidTokenSymbol}</Typography>
+              <Typography>Total supply: {state.bidTokenTotalSupply || 'Supply is private'}</Typography>
               <BidForm handleBid={doBid}/>
+              <Typography>Balance: {state.bidTokenBalance || 'Unknown'}</Typography> 
             </Grid>
             <Grid item xs={4}>
               <WithdrawForm handleWithdraw={doWithdrawSecret20}/>
@@ -270,9 +342,14 @@ function ContractLogic({ address }: ContractDetailsProps): JSX.Element {
             <Grid container spacing={10} justify="space-between">
               <Grid item xs={6}>
                 <Button type="submit" onClick={finalize}>
-                    Finalize ( only if bids )
+                    Finalize deal ( only if bids )
                 </Button>
                 
+              </Grid>
+              <Grid item xs={6}>
+              <Button type="reset" onClick={refreshSecretBalances}>
+                    Refresh Balances
+                </Button>
               </Grid>
             </Grid>
           </Box>

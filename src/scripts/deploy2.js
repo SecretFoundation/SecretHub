@@ -103,20 +103,20 @@ const customFees = {
 }
 
 const auction = {
-  label: "ethauction32",
+  label: "ethauction49",
   initMsg: {
     create_auction: {
       bid_contract: {
-        address: secret_secret20.initMsg.contractAddress,
-        code_hash: secret_secret20.initMsg.hash
+        address: secret_secreta.initMsg.contractAddress,
+        code_hash: secret_secreta.initMsg.hash
       },
       minimum_bid: '1',
       sell_amount: '1',
       sell_contract: {
-        address: secret_secreta.initMsg.contractAddress,
-        code_hash: secret_secreta.initMsg.hash
+        address: secret_secret20.initMsg.contractAddress,
+        code_hash: secret_secret20.initMsg.hash
       },
-      description: 'Private OTC Desk 32'
+      description: 'Private OTC Desk 41'
     }
   }
 }
@@ -167,42 +167,51 @@ async function main() {
   // }
 
   // upload and init auction
-  // const auctionWasm = fs.readFileSync(__dirname + "/../contracts/auction/contract.wasm");
-  // uploadReceipt = await client.upload(auctionWasm, { });
-  // codeId = uploadReceipt.codeId;
-  codeId = 92;
+  const auctionWasm = fs.readFileSync(__dirname + "/../contracts/auction/contract.wasm");
+  uploadReceipt = await client.upload(auctionWasm, { });
+  codeId = uploadReceipt.codeId;
+  console.log(`codeId=${codeId}`);
+  // codeId = 116
 
   console.log(auction.initMsg);
   
   initResult = await client.instantiate(codeId, auction.initMsg, auction.label);
   console.info(`Contract "${auction.label}" instantiated at ${initResult.contractAddress}`);
+  console.info(initResult)
   auction.initMsg.contractAddress = initResult.contractAddress;
 
+  console.log('querying auction')
   auctionInfo = await client.queryContractSmart(auction.initMsg.contractAddress, { auction_info: { } })
   console.log(auctionInfo)
   
   const consignPayment = {
     recipient: auction.initMsg.contractAddress, 
-    amount: "1"
+    amount: "1",
+    msg: 'c2VjcmV0MTZ3ZTVuZXM4ejkyM240bDJ4eHllZmRmYWhlZ2hqZ2NyZzQ0anJ4Cg=='
   }
 
-  let result = await client.execute(secret_secreta.initMsg.contractAddress, { 
+  let result = await client.execute(secret_secret20.initMsg.contractAddress, { 
     send: consignPayment
   });
-  console.info(`consign result: ${JSON.stringify(result)}`);
+  console.info("consign result");
+  console.log(JSON.stringify(result))
+  console.log(JSON.parse(fromUtf8(result.data)))
+
+  console.log('querying auction')
   auctionInfo = await client.queryContractSmart(auction.initMsg.contractAddress, { auction_info: { } })
   console.log(auctionInfo)
 
   const bidPayment = {
     recipient: auction.initMsg.contractAddress, 
-    amount: "2",
-    msg: 'Y3VwY2FrZXMK'
+    amount: "1",
+    msg: 'c2VjcmV0MTBmM2h3aDhsY3poamRqZTQycnR5ZjNtZDVlZHkzaHRwa3BwaHBsCg=='
   }
 
   result = await clientUser1.execute(auction.initMsg.create_auction.bid_contract.address, { 
     send: bidPayment
   });
   console.log("placed bid?")
+  console.info(`bid result ${JSON.stringify(result)}`);
   console.log(JSON.parse(fromUtf8(result.data)))
 
   auctionInfo = await client.queryContractSmart(auction.initMsg.contractAddress, { auction_info: { } })

@@ -13,7 +13,7 @@ const local: AppConfig = {
 const demo: AppConfig = {
   httpUrl: "https://bootstrap.secrettestnet.io",
   faucetUrl: "https://faucet.secrettestnet.io",
-  codeId: 92,
+  codeId: 122,
 };
 
 // REACT_APP_LOCAL is set via `yarn start:local`

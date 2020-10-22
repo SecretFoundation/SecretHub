@@ -48,10 +48,10 @@ export const CreateAuction: React.FC<CreateAuctionProps> = ({ handleCreateAuctio
                     <Formik
                         initialValues={{
                             labelField: "",
-                            bidContractAddressField: "secret1ljptw8mf5wk9n69j2v5vl4w2laqlrgspxykanp",
-                            bidContractHashField: "a56c2f61d8c4e960f833fb491832c7feac62d6d6ca1ccea39a64afebc1d2d883",
-                            sellContractAddressField: "secret1xpzds8dnlwr3ztqwmzffm5vd3lv993c5mszxa3",
-                            sellContractHashField: "19af71c590b2dd8e0ee5216396ae44fe79a071605adead15fc31641497169e00",
+                            bidContractAddressField: "secret1xpzds8dnlwr3ztqwmzffm5vd3lv993c5mszxa3",
+                            bidContractHashField: "19af71c590b2dd8e0ee5216396ae44fe79a071605adead15fc31641497169e00",
+                            sellContractAddressField: "secret1ljptw8mf5wk9n69j2v5vl4w2laqlrgspxykanp",
+                            sellContractHashField: "a56c2f61d8c4e960f833fb491832c7feac62d6d6ca1ccea39a64afebc1d2d883",
                             descriptionField: "",
                             minimumBidAmountField: "100",
                             sellAmountField: "1000",

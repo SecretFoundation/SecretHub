@@ -28,13 +28,13 @@ const render = (Component: React.ComponentType): void => {
 
         <Web3ReactProvider getLibrary={getLibrary}>
           <BurnerWalletProvider config={config}>
-            <BlockHeightProvider>
+            {/* <BlockHeightProvider> */}
               <AccountProvider>
                 <Splash>
                   <Component />
                 </Splash>
               </AccountProvider>
-            </BlockHeightProvider>
+            {/* </BlockHeightProvider> */}
           </BurnerWalletProvider>
         </Web3ReactProvider>
       </ErrorProvider>

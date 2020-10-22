@@ -10,12 +10,18 @@ import { burnerWallet, connect, Wallet } from "./sdk";
 export interface CosmWasmContextType {
   readonly loading: boolean;
   readonly address: string;
+  readonly idw: any;
+  readonly jws: any;
+  readonly did: any;
   readonly getClient: () => SigningCosmWasmClient;
 }
 
 const defaultContext: CosmWasmContextType = {
   loading: true,
   address: "",
+  idw: {},
+  jws: {},
+  did: {},
   getClient: (): SigningCosmWasmClient => {
     throw new Error("not yet initialized");
   },
@@ -54,7 +60,7 @@ export function SdkProvider(props: SdkProviderProps): JSX.Element {
   useEffect(() => {
     loadWallet()
       .then(wallet => connect(config.httpUrl, wallet))
-      .then(async ({ address, client }) => {
+      .then(async ({ address, client, idw, jws, did }) => {
         // load from faucet if needed
         if (config.faucetUrl) {
           try {
@@ -70,6 +76,9 @@ export function SdkProvider(props: SdkProviderProps): JSX.Element {
         setValue({
           loading: false,
           address: address,
+          idw: idw,
+          jws: jws,
+          did: did,
           getClient: () => client,
         });
       })

@@ -22,8 +22,12 @@ const defaultCodeId = config.codeId;
 function ContractList(): JSX.Element {
 
   const { enqueueSnackbar } = useSnackbar();
-  const { address, getClient } = useSdk();
+  const { address, getClient, idw, did } = useSdk();
   const { setError } = useError();
+
+  const CeramicClient = require('@ceramicnetwork/ceramic-http-client').default
+  const ceramic = new CeramicClient('http://45.77.80.71:7007')
+  const { DID } = require('dids')
 
   const [contracts, setContracts] = React.useState<readonly ContractItemProps[]>([]);
   // get the contracts
@@ -73,13 +77,45 @@ function ContractList(): JSX.Element {
     }
 
     try {
-      const initResult = await getClient().instantiate(defaultCodeId, auction.initMsg, auction.label);
+      const result = await getClient().instantiate(defaultCodeId, auction.initMsg, auction.label);
 
-      const contractAddress = initResult.contractAddress;
-      const transactionHash = initResult.transactionHash;
+      const contractAddress = result.contractAddress;
+      const transactionHash = result.transactionHash;
 
       console.log(`Initialized auction at ${contractAddress}`)
       console.log(`Init auction transactionHash=${transactionHash}`)
+
+      // const topic = '/ceramic_api_test'
+
+      // const stringMapSchema = {
+      //   "$schema": "http://json-schema.org/draft-07/schema#",
+      //   "title": "StringMap",
+      //   "type": "object",
+      //   "additionalProperties": {
+      //     "type": "string"
+      //   }
+      // }
+      
+      // const DOCTYPE_TILE = 'tile';
+      // const schemaDoc = await ceramic.createDocument(DOCTYPE_TILE, {
+      //   content: stringMapSchema,
+      //   metadata: { owners: [did] }
+      // })
+
+      // content = {todo: store auction data}
+      // const tileDocParams = {
+      //   metadata: {
+      //     schema: schemaDoc.id, owners: [did]
+      //   }, content: content
+      // }
+
+      // const doc = await ceramic.loadDocument(DOCTYPE_TILE, tileDocParams)
+
+      // await new Promise(resolve => setTimeout(resolve, 1000)) // wait to propagate
+      // console.log('created doc')
+      // console.log(doc)
+
+      // console.log(`doc CID = ${doc.id}`)
 
       enqueueMessage('Auction created', 'success');
       refreshAccount();
